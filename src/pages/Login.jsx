@@ -210,14 +210,14 @@ export default function Login() {
           </div>
 
           <div className="flex items-center justify-center pt-2">
-            <button
+            {/* <button
               type="button"
               onClick={() => setResetOpen(true)}
               className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 transition hover:text-indigo-600"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
               Reset Demo Data to Initial State
-            </button>
+            </button> */}
           </div>
         </div>
       </section>

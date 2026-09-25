@@ -1,47 +1,92 @@
 # AssignmentHub — Student Assignment Management Dashboard
 
-AssignmentHub is a clean, modern, production-quality, role-based **Student Assignment Management Dashboard** built with **React.js**, **Vite**, **Tailwind CSS**, and **localStorage**.
-
-Designed with a sleek SaaS aesthetic (Notion/Linear inspired), it features dual role-based workflows for **Students** and **Admins/Professors**, complete with two-step submission verification, real-time progress metrics, and strict role-based data isolation.
+**AssignmentHub** is a clean, modern, role-based Student Assignment Management System built with **React.js (Vite)**, **Tailwind CSS**, **React Router DOM**, and **localStorage**.
 
 ---
 
-## 🚀 Features
+## 📌 Project Overview
 
-### 🎓 Student Role
-- **Secure Authentication**: Log in as a student (`anand@student.com`).
-- **Student Dashboard**: Overview greeting and real-time statistics (Total Assignments, Submitted, Pending, Overall Completion %).
-- **Strict Data Isolation**: Students only view assignments specifically assigned to them.
-- **Assignment Details**: View subject, due date, full description, and open the external Google Drive submission link in a new tab.
-- **Double-Verification Submission Flow**: Clicking *"Yes, I have submitted"* triggers an interactive confirmation modal before persisting the submission to `localStorage`.
-- **Submission Status Tracking**: Automatic visual badges (`Submitted`, `Pending`, `Due Soon`, `Overdue`).
-
-### 👨‍🏫 Admin / Professor Role
-- **Admin Authentication**: Log in as an admin/professor (`admin@assignmenthub.com`).
-- **Admin Dashboard**: Overview metrics (Total Assignments, Total Enrolled Students, Total Submissions, Overall Completion %).
-- **Assignment Management (CRUD)**: Create, search, filter, edit, and delete assignments.
-- **Student Assignment Selection**: Select individual students using multi-select checkboxes when creating or editing assignments.
-- **Submission Tracking & Individual Progress Bars**: Monitor every student's submission status and individual progress bar (0% or 100%) for created assignments.
-- **Safe Editing**: Editing assignments preserves existing student submission history.
-- **Delete Confirmation**: Deleting an assignment prompts for confirmation before removing it from `localStorage`.
+AssignmentHub allows two types of users:
+1. **Students**: View assigned coursework, open submission links, submit assignments with a two-step confirmation, and track completion progress.
+2. **Admins / Professors**: Create, edit, and delete assignments, select target students, track individual student progress, and monitor overall completion statistics.
 
 ---
 
-## 🛠️ Tech Stack
+## 🔐 How Login & Signup Work (Step-by-Step)
 
-- **Framework**: React 19 (Vite 6)
-- **Styling**: Tailwind CSS v3, CSS3
-- **Icons**: Lucide React
-- **Routing**: React Router DOM v7
-- **State Management**: React Context API (`AuthContext`, `AssignmentsContext`, `ToastContext`)
-- **Persistence**: `localStorage` (Simulated JSON persistence engine)
-- **Deployment Ready**: SPA fallback configured (`vercel.json`)
+There is **no backend server**. Everything is simulated locally using `localStorage`.
+
+### 1. Signup (Account Creation Flow)
+1. User visits `/register` and fills in:
+   - **Full Name**
+   - **Email Address**
+   - **Password** (minimum 6 characters)
+   - **Role**: Selects either `Student` or `Admin / Professor`.
+2. The application checks if the email already exists in `localStorage` (`assignmenthub_users`).
+3. If valid, a new user object is created with a unique ID (e.g. `student-1727...`) and saved to `localStorage`.
+4. The user is logged in automatically and redirected to their role-specific dashboard (`/student/dashboard` or `/admin/dashboard`).
+
+### 2. Login Flow
+1. User visits `/login` and enters credentials (or clicks a **Demo Account** button to autofill).
+2. `AuthContext` searches `localStorage` for a matching email & password.
+3. If valid, user session is saved in `localStorage` (`assignmenthub_currentUser`).
+4. User is redirected to their dashboard based on role:
+   - **Student** → `/student/dashboard`
+   - **Admin** → `/admin/dashboard`
+
+---
+
+## 🏗️ Architecture & How It Works
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                       React Router                         │
+│   (/login, /register, /student/dashboard, /admin/dashboard)  │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+┌──────────────────────────────▼──────────────────────────────┐
+│                    Route Guards Layer                       │
+│    • ProtectedRoute (Check if user is logged in)            │
+│    • RoleRoute (Check student vs admin permissions)         │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+┌──────────────────────────────▼──────────────────────────────┐
+│                     React Context API                       │
+│    • AuthContext (user state, login, register, logout)      │
+│    • AssignmentsContext (assignments list, submit, CRUD)    │
+│    • ToastContext (pop-up notification messages)            │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+┌──────────────────────────────▼──────────────────────────────┐
+│                  LocalStorage Persistence                   │
+│    • assignmenthub_currentUser  (Current active user)     │
+│    • assignmenthub_users        (Registered user accounts)  │
+│    • assignmenthub_assignments  (All assignment records)    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 1. Data Layer (`localStorage`)
+- On first application launch, mock data (`users.js` and `assignments.js`) is automatically initialized into `localStorage`.
+- All changes (submitting assignments, creating new assignments, registering users) are saved instantly in `localStorage` so data stays updated even after page refresh.
+
+### 2. State Layer (`React Context`)
+- **`AuthContext`**: Handles authentication state, login validation, account creation, and logout.
+- **`AssignmentsContext`**: Handles global assignment state, adding, editing, deleting, and submitting assignments.
+- **`ToastContext`**: Provides instant feedback pop-ups (e.g. *"Assignment submitted successfully"*).
+
+### 3. Route Protection & Security Guards
+- **`ProtectedRoute`**: Redirects unauthenticated users back to `/login`.
+- **`RoleRoute`**: Prevents students from opening Admin routes, and admins from opening Student routes.
+
+### 4. Privacy & Data Isolation
+- **Student Privacy**: Students only see assignments where their `user.id` is included in `assignedStudents`.
+- **Admin Isolation**: Admins only see and manage assignments created by their specific `user.id`.
 
 ---
 
 ## 🔑 Demo Credentials
 
-You can use the built-in quick autofill buttons on the login screen or enter these credentials manually:
+You can log in directly using these demo accounts (or click the demo buttons on the login page):
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
@@ -52,14 +97,14 @@ You can use the built-in quick autofill buttons on the login screen or enter the
 
 ---
 
-## 💻 Installation & Local Development
+## 💻 How to Run the Project Locally
 
 1. **Install Dependencies**:
    ```bash
    npm install
    ```
 
-2. **Start Development Server**:
+2. **Run Development Server**:
    ```bash
    npm run dev
    ```
@@ -77,93 +122,35 @@ You can use the built-in quick autofill buttons on the login screen or enter the
 
 ---
 
-## 📁 Folder Structure
+## 📁 Project Structure
 
 ```text
 src/
-├── assets/                  # Static assets and media
 ├── components/
-│   ├── assignments/         # Assignment domain components
-│   │   ├── AssignmentCard.jsx    # Card view for student assignments
-│   │   ├── AssignmentForm.jsx    # Form for creating/editing assignments
-│   │   ├── AssignmentTable.jsx   # Admin table view for assignments
-│   │   └── StudentTable.jsx      # Admin table for tracking student progress
-│   ├── common/              # Reusable UI components
-│   │   ├── EmptyState.jsx        # Component for zero data states
-│   │   ├── LoadingSpinner.jsx    # Animated loading indicator
-│   │   ├── Modal.jsx             # Accessible confirmation dialog
-│   │   ├── ProgressBar.jsx       # Dynamic progress bar component
-│   │   ├── SearchBar.jsx         # Search input with icon
-│   │   ├── StatCard.jsx          # Statistics metric card
-│   │   ├── StatusBadge.jsx       # Color-coded assignment status badge
-│   │   └── Toast.jsx             # Auto-dismissing notification toast
-│   ├── layout/              # Application layout frames
-│   │   ├── DashboardLayout.jsx   # Main layout container
-│   │   ├── MobileMenu.jsx        # Mobile slide-out drawer
-│   │   ├── Navbar.jsx            # Top bar for mobile layout
-│   │   └── Sidebar.jsx           # Responsive desktop sidebar navigation
-│   └── routing/             # Route guards
-│       ├── ProtectedRoute.jsx    # Requires authenticated user
-│       └── RoleRoute.jsx         # Enforces role permissions (student vs admin)
+│   ├── assignments/   # Assignment Card, Form, and Tables
+│   ├── common/        # StatCard, ProgressBar, Modal, SearchBar, Toast
+│   ├── layout/        # Sidebar, Navbar, MobileMenu, DashboardLayout
+│   └── routing/       # ProtectedRoute, RoleRoute
 ├── context/
-│   ├── AssignmentsContext.jsx# Global assignment & submission state
-│   ├── AuthContext.jsx       # Authentication & user state
-│   └── ToastContext.jsx      # Global toast notifications
+│   ├── AuthContext.jsx         # User & session state
+│   ├── AssignmentsContext.jsx  # Assignments & submissions state
+│   └── ToastContext.jsx        # Notification toasts
 ├── data/
-│   ├── assignments.js        # Seed assignment dataset
-│   └── users.js              # Seed user dataset
+│   ├── assignments.js          # Default mock assignments
+│   └── users.js                # Default mock users
 ├── pages/
-│   ├── admin/
-│   │   ├── AdminDashboard.jsx    # Overview for professors
-│   │   ├── CreateAssignment.jsx  # New assignment creation page
-│   │   ├── EditAssignment.jsx    # Assignment editing & submission tracker
-│   │   └── ManageAssignments.jsx # List, filter, search assignments page
-│   ├── student/
-│   │   ├── AssignmentDetails.jsx # Detailed view & double verification flow
-│   │   └── StudentDashboard.jsx  # Student metrics & assigned work
-│   └── Login.jsx             # Split-screen login interface
+│   ├── admin/         # Admin Dashboard, Create, Edit, Manage Pages
+│   ├── student/       # Student Dashboard & Assignment Details Pages
+│   ├── Login.jsx      # Login page with demo autofills
+│   └── Register.jsx   # Create Account page
 ├── utils/
-│   ├── assignmentStatus.js   # Status rule engine (Submitted, Pending, Due Soon, Overdue)
-│   ├── progress.js           # Progress calculation utilities
-│   └── storage.js            # LocalStorage persistence wrapper & date formatters
-├── App.jsx                   # Central routing definition
-├── main.jsx                  # React DOM entry point
-└── index.css                 # Global CSS & Tailwind imports
+│   ├── assignmentStatus.js # Status calculator (Submitted, Pending, Due Soon, Overdue)
+│   ├── progress.js         # Percentage math calculations
+│   └── storage.js          # LocalStorage helper functions
+├── App.jsx            # Central router definition
+├── main.jsx           # React app entry point
+└── index.css          # Global Tailwind CSS styles
 ```
-
----
-
-## 🏛️ Architecture & Key Concepts
-
-1. **Component-Based Architecture**: Modular design separating domain components (`assignments/`), layout shell (`layout/`), common UI elements (`common/`), and route guards (`routing/`).
-2. **Context API**: React Context is utilized for application-wide state management:
-   - `AuthContext`: Handles session initialization, login validation, and logout.
-   - `AssignmentsContext`: Manages CRUD operations and student submission updates with sync to `localStorage`.
-   - `ToastContext`: Provides global toast notifications.
-3. **Role-Based Routing & Data Isolation**:
-   - `ProtectedRoute` ensures unauthenticated users are redirected to `/login`.
-   - `RoleRoute` restricts `/admin/*` routes to admin users and `/student/*` routes to student users.
-   - JavaScript-level filtering (`currentUser.id`) guarantees that students never access or render another student's assignment data.
-4. **LocalStorage Data Engine**: Automatically seeds mock data on first launch (`assignmenthub_initialized`) and persists all updates locally across page refreshes.
-
----
-
-## 🎨 Design Decisions
-
-- **Modern SaaS Aesthetics**: Styled with soft slate backgrounds (`bg-slate-50`), rounded cards (`rounded-2xl`), subtle shadows, and crisp typography (`Plus Jakarta Sans`).
-- **Double Confirmation Flow**: Prevents accidental submissions by requiring students to confirm via an accessible modal.
-- **Responsive Layout**: Seamless transition between desktop sidebar layout and mobile top navbar + slide-out drawer menu.
-
----
-
-## 🔮 Future Improvements
-
-- Backend REST API integration (Node.js/Express or NestJS).
-- Database persistence (PostgreSQL / MongoDB).
-- Real JWT / OAuth2 authentication.
-- Native Google Drive API integration & direct file upload preview.
-- Email notifications for approaching due dates.
-- Interactive student analytics charts & grade submission.
 
 ---
 
