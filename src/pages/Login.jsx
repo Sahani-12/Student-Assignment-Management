@@ -100,9 +100,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="relative z-10 text-xs text-indigo-300 border-t border-white/10 pt-4">
-          Built with React 19, Vite, Tailwind CSS & localStorage
-        </div>
+        
       </section>
 
       {/* Right Column: Interactive Login Form */}
