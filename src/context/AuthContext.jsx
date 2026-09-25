@@ -32,6 +32,40 @@ export function AuthProvider({ children }) {
     return { ok: true, user: sessionUser };
   }, []);
 
+  const register = useCallback((name, email, password, role = 'student') => {
+    const users = getUsers();
+    const normalizedEmail = email.trim().toLowerCase();
+    const exists = users.some(
+      (u) => u.email.toLowerCase() === normalizedEmail
+    );
+    if (exists) {
+      return { ok: false, error: 'An account with this email address already exists.' };
+    }
+
+    const newId = `${role}-${Date.now()}`;
+    const newUser = {
+      id: newId,
+      name: name.trim(),
+      email: normalizedEmail,
+      password,
+      role,
+    };
+
+    const updatedUsers = [...users, newUser];
+    localStorage.setItem('assignmenthub_users', JSON.stringify(updatedUsers));
+
+    const sessionUser = {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+    };
+    setCurrentUser(sessionUser);
+    setUser(sessionUser);
+
+    return { ok: true, user: sessionUser };
+  }, []);
+
   const logout = useCallback(() => {
     removeCurrentUser();
     setUser(null);
@@ -41,10 +75,11 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       login,
+      register,
       logout,
       isAuthenticated: Boolean(user),
     }),
-    [user, login, logout]
+    [user, login, register, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

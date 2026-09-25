@@ -3,6 +3,7 @@ import ProtectedRoute from './components/routing/ProtectedRoute';
 import RoleRoute from './components/routing/RoleRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import StudentDashboard from './pages/student/StudentDashboard';
 import AssignmentDetails from './pages/student/AssignmentDetails';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -14,6 +15,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/" element={<Navigate to="/login" replace />} />
 
       {/* Student Routes */}
