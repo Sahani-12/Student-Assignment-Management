@@ -1,73 +1,37 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import {
-  getCurrentUser,
-  getUsers,
-  removeCurrentUser,
-  setCurrentUser,
-} from '../utils/storage';
+import { authService } from '../services/authService';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => getCurrentUser());
+  const [user, setUser] = useState(() => authService.getCurrentUser());
 
-  const login = useCallback((email, password) => {
-    const users = getUsers();
-    const match = users.find(
-      (u) =>
-        u.email.toLowerCase() === email.trim().toLowerCase() &&
-        u.password === password
-    );
-    if (!match) {
-      return { ok: false, error: 'Invalid email or password.' };
+  const login = useCallback(async (email, password) => {
+    const result = await authService.login(email, password);
+    if (result.ok) {
+      setUser(result.user);
     }
-    const sessionUser = {
-      id: match.id,
-      name: match.name,
-      email: match.email,
-      role: match.role,
-    };
-    setCurrentUser(sessionUser);
-    setUser(sessionUser);
-    return { ok: true, user: sessionUser };
+    return result;
   }, []);
 
-  const register = useCallback((name, email, password, role = 'student') => {
-    const users = getUsers();
-    const normalizedEmail = email.trim().toLowerCase();
-    const exists = users.some(
-      (u) => u.email.toLowerCase() === normalizedEmail
-    );
-    if (exists) {
-      return { ok: false, error: 'An account with this email address already exists.' };
-    }
-
-    const newId = `${role}-${Date.now()}`;
-    const newUser = {
-      id: newId,
-      name: name.trim(),
-      email: normalizedEmail,
-      password,
-      role,
-    };
-
-    const updatedUsers = [...users, newUser];
-    localStorage.setItem('assignmenthub_users', JSON.stringify(updatedUsers));
-
-    const sessionUser = {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-    };
-    setCurrentUser(sessionUser);
-    setUser(sessionUser);
-
-    return { ok: true, user: sessionUser };
-  }, []);
+  const register = useCallback(
+    async (name, email, password, role = 'student') => {
+      const result = await authService.register({
+        name,
+        email,
+        password,
+        role,
+      });
+      if (result.ok) {
+        setUser(result.user);
+      }
+      return result;
+    },
+    []
+  );
 
   const logout = useCallback(() => {
-    removeCurrentUser();
+    authService.logout();
     setUser(null);
   }, []);
 
@@ -78,6 +42,8 @@ export function AuthProvider({ children }) {
       register,
       logout,
       isAuthenticated: Boolean(user),
+      isProfessor: user?.role === 'professor' || user?.role === 'admin',
+      isStudent: user?.role === 'student',
     }),
     [user, login, register, logout]
   );

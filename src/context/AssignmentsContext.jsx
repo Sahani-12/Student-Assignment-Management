@@ -6,139 +6,129 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { getAssignments, saveAssignments } from '../utils/storage';
+import { assignmentService } from '../services/assignmentService';
+import { courseService } from '../services/courseService';
+import { groupService } from '../services/groupService';
 
 const AssignmentsContext = createContext(null);
 
-function createEmptySubmissions(studentIds) {
-  return studentIds.reduce((acc, id) => {
-    acc[id] = { submitted: false, submittedAt: null };
-    return acc;
-  }, {});
-}
-
 export function AssignmentsProvider({ children }) {
-  const [assignments, setAssignments] = useState(() => getAssignments());
+  const [assignments, setAssignments] = useState(() =>
+    assignmentService.getAllAssignments()
+  );
+  const [courses, setCourses] = useState(() => courseService.getAllCourses());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 300);
+    const t = setTimeout(() => setLoading(false), 250);
     return () => clearTimeout(t);
   }, []);
 
   const refresh = useCallback(() => {
-    setAssignments(getAssignments());
-  }, []);
-
-  const persist = useCallback((next) => {
-    saveAssignments(next);
-    setAssignments(next);
+    setAssignments(assignmentService.getAllAssignments());
+    setCourses(courseService.getAllCourses());
   }, []);
 
   const addAssignment = useCallback(
     (payload) => {
-      const id = `assignment-${Date.now()}`;
-      const assignedStudents = payload.assignedStudents || [];
-      const entry = {
-        id,
-        ...payload,
-        createdBy: payload.createdBy,
-        assignedStudents,
-        submissions: createEmptySubmissions(assignedStudents),
-      };
-      const next = [...getAssignments(), entry];
-      persist(next);
-      return entry;
+      const created = assignmentService.createAssignment(payload);
+      setAssignments(assignmentService.getAllAssignments());
+      return created;
     },
-    [persist]
+    []
   );
 
   const updateAssignment = useCallback(
     (id, payload) => {
-      const current = getAssignments();
-      const index = current.findIndex((a) => a.id === id);
-      if (index === -1) return null;
-
-      const existing = current[index];
-      const newAssigned = payload.assignedStudents ?? existing.assignedStudents;
-      const submissions = { ...existing.submissions };
-
-      newAssigned.forEach((sid) => {
-        if (!submissions[sid]) {
-          submissions[sid] = { submitted: false, submittedAt: null };
-        }
-      });
-
-      Object.keys(submissions).forEach((sid) => {
-        if (!newAssigned.includes(sid)) {
-          delete submissions[sid];
-        }
-      });
-
-      const updated = {
-        ...existing,
-        ...payload,
-        assignedStudents: newAssigned,
-        submissions,
-      };
-
-      const next = [...current];
-      next[index] = updated;
-      persist(next);
+      const updated = assignmentService.updateAssignment(id, payload);
+      setAssignments(assignmentService.getAllAssignments());
       return updated;
     },
-    [persist]
+    []
   );
 
   const deleteAssignment = useCallback(
     (id) => {
-      const next = getAssignments().filter((a) => a.id !== id);
-      persist(next);
+      assignmentService.deleteAssignment(id);
+      setAssignments(assignmentService.getAllAssignments());
     },
-    [persist]
+    []
   );
 
-  const submitForStudent = useCallback(
+  const acknowledgeIndividual = useCallback(
     (assignmentId, studentId) => {
-      const current = getAssignments();
-      const index = current.findIndex((a) => a.id === assignmentId);
-      if (index === -1) return null;
-
-      const existing = current[index];
-      const submittedAt = new Date().toISOString();
-      const updated = {
-        ...existing,
-        submissions: {
-          ...existing.submissions,
-          [studentId]: { submitted: true, submittedAt },
-        },
-      };
-      const next = [...current];
-      next[index] = updated;
-      persist(next);
+      const updated = assignmentService.acknowledgeIndividualAssignment(
+        assignmentId,
+        studentId
+      );
+      setAssignments(assignmentService.getAllAssignments());
       return updated;
     },
-    [persist]
+    []
   );
+
+  const acknowledgeGroup = useCallback(
+    (assignmentId, groupId, leaderId, leaderName) => {
+      const updated = assignmentService.acknowledgeGroupAssignment(
+        assignmentId,
+        groupId,
+        leaderId,
+        leaderName
+      );
+      setAssignments(assignmentService.getAllAssignments());
+      return updated;
+    },
+    []
+  );
+
+  // Backwards compatibility with Task 1 submitForStudent
+  const submitForStudent = useCallback(
+    (assignmentId, studentId) => {
+      return acknowledgeIndividual(assignmentId, studentId);
+    },
+    [acknowledgeIndividual]
+  );
+
+  const createGroup = useCallback((payload) => {
+    const newGroup = groupService.createGroup(payload);
+    refresh();
+    return newGroup;
+  }, [refresh]);
+
+  const joinGroup = useCallback((groupId, studentId) => {
+    const updated = groupService.joinGroup(groupId, studentId);
+    refresh();
+    return updated;
+  }, [refresh]);
 
   const value = useMemo(
     () => ({
       assignments,
+      courses,
       loading,
       refresh,
       addAssignment,
       updateAssignment,
       deleteAssignment,
+      acknowledgeIndividual,
+      acknowledgeGroup,
       submitForStudent,
+      createGroup,
+      joinGroup,
     }),
     [
       assignments,
+      courses,
       loading,
       refresh,
       addAssignment,
       updateAssignment,
       deleteAssignment,
+      acknowledgeIndividual,
+      acknowledgeGroup,
       submitForStudent,
+      createGroup,
+      joinGroup,
     ]
   );
 
@@ -151,6 +141,7 @@ export function AssignmentsProvider({ children }) {
 
 export function useAssignments() {
   const ctx = useContext(AssignmentsContext);
-  if (!ctx) throw new Error('useAssignments must be used within AssignmentsProvider');
+  if (!ctx)
+    throw new Error('useAssignments must be used within AssignmentsProvider');
   return ctx;
 }

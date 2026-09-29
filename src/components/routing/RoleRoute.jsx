@@ -8,10 +8,20 @@ export default function RoleRoute({ allowedRole, children }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== allowedRole) {
+  const isProf = user.role === 'professor' || user.role === 'admin';
+  const isStud = user.role === 'student';
+
+  const isAllowed =
+    (allowedRole === 'professor' || allowedRole === 'admin')
+      ? isProf
+      : allowedRole === 'student'
+      ? isStud
+      : user.role === allowedRole;
+
+  if (!isAllowed) {
     return (
       <Navigate
-        to={user.role === 'admin' ? '/admin/dashboard' : '/student/dashboard'}
+        to={isProf ? '/professor/dashboard' : '/student/dashboard'}
         replace
       />
     );

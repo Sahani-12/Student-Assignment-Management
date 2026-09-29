@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import ProgressBar from '../common/ProgressBar';
-import { getAssignmentCompletionStats } from '../../utils/progress';
-import { formatDisplayDate } from '../../utils/storage';
+import StatusBadge from '../common/StatusBadge';
+import { getAssignmentProgress } from '../../utils/progressUtils';
+import { formatDateTime } from '../../utils/dateUtils';
 
 export default function AssignmentTable({ assignments, onDelete }) {
   if (!assignments.length) return null;
@@ -17,10 +18,13 @@ export default function AssignmentTable({ assignments, onDelete }) {
                 Assignment
               </th>
               <th scope="col" className="px-6 py-4">
-                Due Date
+                Type
               </th>
               <th scope="col" className="px-6 py-4">
-                Students
+                Deadline
+              </th>
+              <th scope="col" className="px-6 py-4">
+                Submissions
               </th>
               <th scope="col" className="px-6 py-4">
                 Completion Rate
@@ -32,41 +36,53 @@ export default function AssignmentTable({ assignments, onDelete }) {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {assignments.map((a) => {
-              const stats = getAssignmentCompletionStats(a);
+              const stats = getAssignmentProgress(a);
               return (
                 <tr key={a.id} className="transition hover:bg-slate-50/80">
                   <td className="px-6 py-4">
                     <p className="font-bold text-slate-900">{a.title}</p>
-                    <p className="text-xs font-semibold text-indigo-600">{a.subject}</p>
+                    <p className="text-xs text-slate-500 truncate max-w-xs">{a.description}</p>
                   </td>
-                  <td className="px-6 py-4 text-slate-600 font-medium">
-                    {formatDisplayDate(a.dueDate)}
+                  <td className="px-6 py-4">
+                    <StatusBadge status={a.submissionType} type="submissionType" />
                   </td>
-                  <td className="px-6 py-4 text-slate-600 font-semibold">
-                    {stats.submitted} / {stats.total} submitted
+                  <td className="px-6 py-4 text-slate-600 font-medium whitespace-nowrap">
+                    {formatDateTime(a.deadline)}
                   </td>
-                  <td className="min-w-[160px] px-6 py-4">
+                  <td className="px-6 py-4 text-slate-600 font-semibold whitespace-nowrap">
+                    {stats.completed} / {stats.total} {stats.isGroup ? 'groups' : 'students'}
+                  </td>
+                  <td className="min-w-[150px] px-6 py-4">
                     <ProgressBar value={stats.percentage} />
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
+                    <div className="flex justify-end gap-1.5">
                       <Link
-                        to={`/admin/assignments/edit/${a.id}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-50"
-                        aria-label={`Edit ${a.title}`}
+                        to={`/professor/assignments/${a.id}`}
+                        className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 transition hover:bg-indigo-100"
+                        title="View Analytics"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        View
+                      </Link>
+                      <Link
+                        to={`/professor/assignments/edit/${a.id}`}
+                        className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 transition hover:bg-slate-200"
+                        title="Edit Assignment"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                         Edit
                       </Link>
-                      <button
-                        type="button"
-                        onClick={() => onDelete(a)}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                        aria-label={`Delete ${a.title}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Delete
-                      </button>
+                      {onDelete && (
+                        <button
+                          type="button"
+                          onClick={() => onDelete(a)}
+                          className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                          title="Delete Assignment"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -76,9 +92,10 @@ export default function AssignmentTable({ assignments, onDelete }) {
         </table>
       </div>
 
+      {/* Mobile Card Fallback */}
       <div className="space-y-4 md:hidden">
         {assignments.map((a) => {
-          const stats = getAssignmentCompletionStats(a);
+          const stats = getAssignmentProgress(a);
           return (
             <article
               key={a.id}
@@ -87,35 +104,45 @@ export default function AssignmentTable({ assignments, onDelete }) {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-bold text-slate-900">{a.title}</h3>
-                  <p className="text-xs font-semibold text-indigo-600">{a.subject}</p>
+                  <div className="mt-1">
+                    <StatusBadge status={a.submissionType} type="submissionType" />
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-slate-500">
-                  {stats.submitted}/{stats.total}
+                <span className="text-xs font-bold text-slate-600">
+                  {stats.completed}/{stats.total}
                 </span>
               </div>
 
-              <p className="mt-2 text-xs text-slate-500">
-                Due: {formatDisplayDate(a.dueDate)}
+              <p className="mt-3 text-xs text-slate-500">
+                Deadline: {formatDateTime(a.deadline)}
               </p>
 
-              <div className="mt-4">
-                <ProgressBar value={stats.percentage} label="Progress" />
+              <div className="mt-3">
+                <ProgressBar value={stats.percentage} label="Submission Progress" />
               </div>
 
               <div className="mt-4 flex gap-2 pt-3 border-t border-slate-100">
                 <Link
-                  to={`/admin/assignments/edit/${a.id}`}
+                  to={`/professor/assignments/${a.id}`}
                   className="flex-1 rounded-xl bg-indigo-50 py-2 text-center text-xs font-bold text-indigo-700 hover:bg-indigo-100"
+                >
+                  Analytics
+                </Link>
+                <Link
+                  to={`/professor/assignments/edit/${a.id}`}
+                  className="flex-1 rounded-xl border border-slate-200 py-2 text-center text-xs font-bold text-slate-700 hover:bg-slate-50"
                 >
                   Edit
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => onDelete(a)}
-                  className="flex-1 rounded-xl bg-red-50 py-2 text-xs font-bold text-red-700 hover:bg-red-100"
-                >
-                  Delete
-                </button>
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={() => onDelete(a)}
+                    className="rounded-xl px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 border border-red-100"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </article>
           );

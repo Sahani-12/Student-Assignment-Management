@@ -10,6 +10,7 @@ export default function ConfirmationModal({
   onConfirm,
   onCancel,
   variant = 'default',
+  confirmDisabled = false,
 }) {
   const titleId = useId();
   const cancelRef = useRef(null);
@@ -74,8 +75,9 @@ export default function ConfirmationModal({
           </button>
           <button
             type="button"
+            disabled={confirmDisabled}
             onClick={onConfirm}
-            className={`rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 ${confirmClass}`}
+            className={`rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 disabled:opacity-50 ${confirmClass}`}
           >
             {confirmLabel}
           </button>
@@ -84,3 +86,5 @@ export default function ConfirmationModal({
     </div>
   );
 }
+
+export { ConfirmationModal as Modal };

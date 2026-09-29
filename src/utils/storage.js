@@ -1,34 +1,47 @@
 import { seedUsers } from '../data/users';
+import { seedCourses } from '../data/courses';
+import { seedGroups } from '../data/groups';
 import { seedAssignments } from '../data/assignments';
 
 const KEYS = {
   USER: 'assignmenthub_currentUser',
   ASSIGNMENTS: 'assignmenthub_assignments',
   USERS: 'assignmenthub_users',
-  INITIALIZED: 'assignmenthub_initialized',
+  COURSES: 'assignmenthub_courses',
+  GROUPS: 'assignmenthub_groups',
+  INITIALIZED_V2: 'assignmenthub_v2_initialized',
 };
 
 export function initializeStorage() {
-  if (localStorage.getItem(KEYS.INITIALIZED)) {
+  if (localStorage.getItem(KEYS.INITIALIZED_V2)) {
     return;
   }
   localStorage.setItem(KEYS.USERS, JSON.stringify(seedUsers));
+  localStorage.setItem(KEYS.COURSES, JSON.stringify(seedCourses));
+  localStorage.setItem(KEYS.GROUPS, JSON.stringify(seedGroups));
   localStorage.setItem(KEYS.ASSIGNMENTS, JSON.stringify(seedAssignments));
-  localStorage.setItem(KEYS.INITIALIZED, 'true');
+  localStorage.setItem(KEYS.INITIALIZED_V2, 'true');
 }
 
 export function resetDemoData() {
   localStorage.removeItem(KEYS.USER);
   localStorage.setItem(KEYS.USERS, JSON.stringify(seedUsers));
+  localStorage.setItem(KEYS.COURSES, JSON.stringify(seedCourses));
+  localStorage.setItem(KEYS.GROUPS, JSON.stringify(seedGroups));
   localStorage.setItem(KEYS.ASSIGNMENTS, JSON.stringify(seedAssignments));
-  localStorage.setItem(KEYS.INITIALIZED, 'true');
+  localStorage.setItem(KEYS.INITIALIZED_V2, 'true');
 }
 
 export function getCurrentUser() {
   const raw = localStorage.getItem(KEYS.USER);
   if (!raw) return null;
   try {
-    return JSON.parse(raw);
+    const user = JSON.parse(raw);
+    // Normalize role so admin behaves as professor
+    if (user && user.role === 'admin') {
+      user.role = 'professor';
+    }
+    return user;
   } catch {
     return null;
   }
@@ -40,6 +53,9 @@ export function setCurrentUser(user) {
     return;
   }
   const { password: _, ...safe } = user;
+  if (safe.role === 'admin') {
+    safe.role = 'professor';
+  }
   localStorage.setItem(KEYS.USER, JSON.stringify(safe));
 }
 
@@ -57,6 +73,38 @@ export function getUsers() {
   }
 }
 
+export function saveUsers(users) {
+  localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+}
+
+export function getCourses() {
+  const raw = localStorage.getItem(KEYS.COURSES);
+  if (!raw) return [...seedCourses];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [...seedCourses];
+  }
+}
+
+export function saveCourses(courses) {
+  localStorage.setItem(KEYS.COURSES, JSON.stringify(courses));
+}
+
+export function getGroups() {
+  const raw = localStorage.getItem(KEYS.GROUPS);
+  if (!raw) return [...seedGroups];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [...seedGroups];
+  }
+}
+
+export function saveGroups(groups) {
+  localStorage.setItem(KEYS.GROUPS, JSON.stringify(groups));
+}
+
 export function getAssignments() {
   const raw = localStorage.getItem(KEYS.ASSIGNMENTS);
   if (!raw) return [...seedAssignments];
@@ -69,26 +117,6 @@ export function getAssignments() {
 
 export function saveAssignments(assignments) {
   localStorage.setItem(KEYS.ASSIGNMENTS, JSON.stringify(assignments));
-}
-
-export function updateSubmission(assignmentId, studentId, submittedAt) {
-  const assignments = getAssignments();
-  const index = assignments.findIndex((a) => a.id === assignmentId);
-  if (index === -1) return null;
-
-  const updated = { ...assignments[index] };
-  updated.submissions = {
-    ...updated.submissions,
-    [studentId]: {
-      submitted: true,
-      submittedAt,
-    },
-  };
-
-  const next = [...assignments];
-  next[index] = updated;
-  saveAssignments(next);
-  return updated;
 }
 
 export function isValidDriveUrl(url) {
