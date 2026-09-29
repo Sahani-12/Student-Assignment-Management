@@ -268,29 +268,30 @@ export default function ProfessorDashboard() {
             return (
               <div
                 key={act.id}
-                className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 hover:bg-slate-50/60 rounded-xl px-2.5 transition-colors"
+                className="flex items-center justify-between gap-3 py-3.5 first:pt-0 last:pb-0 hover:bg-slate-50/60 rounded-xl px-2.5 transition-colors"
               >
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-center gap-3.5 min-w-0">
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${act.bgColor} ${act.iconColor} shadow-xs`}
                   >
                     <Icon className="h-4 w-4" />
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-800 truncate">
                       {act.title}
                     </p>
-                    <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                      <span>{act.author}</span>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 mt-0.5">
+                      <span className="truncate max-w-[150px] sm:max-w-none">{act.author}</span>
                       <span>·</span>
-                      <span>{act.time}</span>
+                      <span className="shrink-0">{act.time}</span>
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100/90 px-2.5 py-1 rounded-md border border-slate-200/60">
+                <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100/90 px-2.5 py-1 rounded-md border border-slate-200/60">
                   {act.type}
                 </span>
               </div>
+
             );
           })}
         </div>

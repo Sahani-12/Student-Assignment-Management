@@ -156,22 +156,22 @@ export default function AssignmentAnalytics({ assignment, analytics }) {
         {isGroup ? (
           <div className="divide-y divide-slate-100">
             {filteredGroups.length === 0 ? (
-              <div className="p-10 text-center text-sm text-slate-500">
+              <div className="p-8 sm:p-10 text-center text-xs sm:text-sm text-slate-500">
                 {search || filter !== 'all' ? 'No groups match your search or filter.' : 'No groups assigned or enrolled in this course yet.'}
               </div>
             ) : (
               filteredGroups.map((grp) => (
-                <div key={grp.groupId} className="p-6 space-y-4 hover:bg-slate-50/50 transition">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                <div key={grp.groupId} className="p-4 sm:p-6 space-y-4 hover:bg-slate-50/50 transition">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-bold text-slate-900">{grp.name}</span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm sm:text-base font-bold text-slate-900">{grp.name}</span>
                         <StatusBadge status={grp.submitted ? 'acknowledged' : 'pending'} />
                       </div>
                       <p className="text-xs text-slate-500 mt-1">
                         Leader: <strong className="text-slate-800">{grp.leaderName}</strong>
                         {grp.submitted && grp.submittedAt && (
-                          <span className="ml-2 font-medium text-emerald-700">
+                          <span className="block sm:inline sm:ml-2 font-medium text-emerald-700">
                             · Acknowledged on {formatDateTime(grp.submittedAt)}
                           </span>
                         )}
@@ -195,56 +195,90 @@ export default function AssignmentAnalytics({ assignment, analytics }) {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div>
             {filteredStudents.length === 0 ? (
-              <div className="p-10 text-center text-sm text-slate-500">
+              <div className="p-8 sm:p-10 text-center text-xs sm:text-sm text-slate-500">
                 {search || filter !== 'all' ? 'No students match your search or filter.' : 'No students enrolled in this course yet.'}
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
-                <thead className="bg-slate-50/80 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  <tr>
-                    <th scope="col" className="px-6 py-3.5">
-                      Student
-                    </th>
-                    <th scope="col" className="px-6 py-3.5">
-                      Roll / ID
-                    </th>
-                    <th scope="col" className="px-6 py-3.5">
-                      Status
-                    </th>
-                    <th scope="col" className="px-6 py-3.5">
-                      Timestamp
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+              <>
+                {/* Desktop & Tablet Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
+                    <thead className="bg-slate-50/80 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <tr>
+                        <th scope="col" className="px-6 py-3.5">
+                          Student
+                        </th>
+                        <th scope="col" className="px-6 py-3.5">
+                          Roll / ID
+                        </th>
+                        <th scope="col" className="px-6 py-3.5">
+                          Status
+                        </th>
+                        <th scope="col" className="px-6 py-3.5">
+                          Timestamp
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {filteredStudents.map((std) => (
+                        <tr key={std.id} className="hover:bg-slate-50/80 transition">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 font-bold text-xs text-indigo-700 shrink-0">
+                                {std.name?.charAt(0)}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-slate-900 truncate">{std.name}</p>
+                                <p className="text-xs text-slate-500 truncate">{std.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-xs font-mono text-slate-600">
+                            {std.rollNo || std.id}
+                          </td>
+                          <td className="px-6 py-4">
+                            <StatusBadge status={std.submitted ? 'acknowledged' : 'pending'} />
+                          </td>
+                          <td className="px-6 py-4 text-xs font-medium text-slate-500">
+                            {std.submittedAt ? formatDateTime(std.submittedAt) : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Responsive Cards View */}
+                <div className="md:hidden divide-y divide-slate-100">
                   {filteredStudents.map((std) => (
-                    <tr key={std.id} className="hover:bg-slate-50/80 transition">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 font-bold text-xs text-indigo-700">
+                    <div key={std.id} className="p-4 space-y-2.5 hover:bg-slate-50/50 transition">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 font-bold text-xs text-indigo-700 shrink-0">
                             {std.name?.charAt(0)}
                           </div>
-                          <div>
-                            <p className="font-bold text-slate-900">{std.name}</p>
-                            <p className="text-xs text-slate-500">{std.email}</p>
+                          <div className="min-w-0">
+                            <p className="font-bold text-sm text-slate-900 truncate">{std.name}</p>
+                            <p className="text-[11px] text-slate-500 truncate">{std.email}</p>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-xs font-mono text-slate-600">
-                        {std.rollNo || std.id}
-                      </td>
-                      <td className="px-6 py-4">
                         <StatusBadge status={std.submitted ? 'acknowledged' : 'pending'} />
-                      </td>
-                      <td className="px-6 py-4 text-xs font-medium text-slate-500">
-                        {std.submittedAt ? formatDateTime(std.submittedAt) : '—'}
-                      </td>
-                    </tr>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-50">
+                        <span className="font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded text-[10px]">
+                          {std.rollNo || std.id}
+                        </span>
+                        <span className="text-[11px]">
+                          {std.submittedAt ? formatDateTime(std.submittedAt) : 'Pending Submission'}
+                        </span>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </>
             )}
           </div>
         )}
@@ -252,4 +286,5 @@ export default function AssignmentAnalytics({ assignment, analytics }) {
     </div>
   );
 }
+
 
