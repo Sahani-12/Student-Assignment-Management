@@ -17,7 +17,7 @@ export default function GroupWarningCard({ onOpenGroupModal }) {
             You&apos;re not in a group yet
           </h3>
           <p className="text-sm text-slate-600 max-w-xl leading-relaxed">
-            You are not part of any group for this course. Form or join one to submit this assignment. Individual acknowledgments are disabled for group tasks.
+            You are not part of any group. Form or join one to submit this assignment.
           </p>
           <div className="pt-2">
             <Button

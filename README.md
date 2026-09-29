@@ -301,8 +301,20 @@ src/
 
 ---
 
-## 🔐 Authentication & Route Guards
+## 🔐 Authentication & Architecture Limitation
 
+> [!NOTE]
+> **Authentication is simulated for frontend evaluation using localStorage. The service layer is structured so a real JWT API can replace the mock implementation without changing UI components.**
+
+- **Token & Session Abstraction**:
+  - `authService.login(email, password)`
+  - `authService.register(userData)`
+  - `authService.logout()`
+  - `authService.getCurrentUser()`
+  - `authService.getToken()`
+  - `authService.isAuthenticated()`
+- Simulated session tokens are stored in `localStorage` under `assignmenthub_auth_token`. When a production backend with real JWT is integrated, only `authService.js` needs to point to the backend API endpoints; no UI components or contexts need rewriting.
+- No real secrets or passwords are stored in plaintext in any public repository.
 - **Strict Route Protection**:
   - Attempting to access `/professor/*` without a professor account immediately redirects to `/student/dashboard`.
   - Attempting to access `/student/*` with a professor account redirects to `/professor/dashboard`.
@@ -397,6 +409,14 @@ The project is preconfigured for deployment on **Vercel** or **Netlify**:
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
 ```
+
+---
+
+## ⚠️ Known Limitations
+
+1. **Frontend-Only Persistence**: As per project scope, data persistence is maintained strictly in client `localStorage`. Clearing browser site data or switching browsers resets changes unless the session is preserved.
+2. **Simulated Authentication**: Authentication tokens are generated and verified on the client side. Production deployment requires pairing `authService.js` with an HTTPS REST API and signed JWT bearer tokens.
+3. **External File Verification**: Submission links point to OneDrive/Google Drive web URLs. Actual file binary verification inside Microsoft/Google folders requires server-side OAuth2 cloud directory scopes.
 
 ---
 

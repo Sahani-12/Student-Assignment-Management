@@ -5,11 +5,13 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => authService.getCurrentUser());
+  const [token, setToken] = useState(() => authService.getToken());
 
   const login = useCallback(async (email, password) => {
     const result = await authService.login(email, password);
     if (result.ok) {
       setUser(result.user);
+      setToken(result.token);
     }
     return result;
   }, []);
@@ -24,6 +26,7 @@ export function AuthProvider({ children }) {
       });
       if (result.ok) {
         setUser(result.user);
+        setToken(result.token);
       }
       return result;
     },
@@ -33,11 +36,13 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     authService.logout();
     setUser(null);
+    setToken(null);
   }, []);
 
   const value = useMemo(
     () => ({
       user,
+      token,
       login,
       register,
       logout,
@@ -45,7 +50,7 @@ export function AuthProvider({ children }) {
       isProfessor: user?.role === 'professor' || user?.role === 'admin',
       isStudent: user?.role === 'student',
     }),
-    [user, login, register, logout]
+    [user, token, login, register, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

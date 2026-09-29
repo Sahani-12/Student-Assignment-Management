@@ -240,27 +240,34 @@ export default function Login() {
           </div>
 
           {/* Demo Accounts Quick-Fill Panel */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card space-y-3">
+          <div className="rounded-2.5xl border border-slate-200 bg-white p-5 shadow-card space-y-3.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Demo Accounts
               </span>
-              <span className="text-[11px] text-slate-400">Click to autofill</span>
+              <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                1-Click Autofill
+              </span>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2.5 sm:grid-cols-2">
               {/* Professor Account */}
               <button
                 type="button"
                 onClick={() =>
                   fillDemoUser('admin@assignmenthub.com', '123456')
                 }
-                className="flex flex-col text-left rounded-xl border border-slate-200 p-3 transition hover:border-purple-500 hover:bg-purple-50/40"
+                className="group flex flex-col text-left rounded-xl border border-slate-200 p-3 transition hover:border-purple-400 hover:bg-purple-50/40 hover:shadow-xs active:scale-[0.99]"
               >
-                <span className="text-xs font-bold text-purple-700">
-                  Professor (Dr. Sharma)
-                </span>
-                <span className="text-[11px] font-medium text-slate-600 truncate">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-purple-700">
+                    Dr. Sharma
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-800">
+                    Professor
+                  </span>
+                </div>
+                <span className="text-[11px] font-medium text-slate-600 truncate mt-1">
                   admin@assignmenthub.com
                 </span>
                 <span className="text-[10px] text-slate-400">Pass: 123456</span>
@@ -270,12 +277,17 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => fillDemoUser('anand@student.com', '123456')}
-                className="flex flex-col text-left rounded-xl border border-slate-200 p-3 transition hover:border-indigo-500 hover:bg-indigo-50/40"
+                className="group flex flex-col text-left rounded-xl border border-slate-200 p-3 transition hover:border-indigo-400 hover:bg-indigo-50/40 hover:shadow-xs active:scale-[0.99]"
               >
-                <span className="text-xs font-bold text-indigo-700">
-                  Student (Anand Sahani)
-                </span>
-                <span className="text-[11px] font-medium text-slate-600 truncate">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-700">
+                    Anand Sahani
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-800">
+                    Student
+                  </span>
+                </div>
+                <span className="text-[11px] font-medium text-slate-600 truncate mt-1">
                   anand@student.com
                 </span>
                 <span className="text-[10px] text-slate-400">Pass: 123456</span>
@@ -285,30 +297,40 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => fillDemoUser('rahul@student.com', '123456')}
-                className="flex flex-col text-left rounded-xl border border-slate-200 p-3 transition hover:border-amber-500 hover:bg-amber-50/40"
+                className="group flex flex-col text-left rounded-xl border border-slate-200 p-3 transition hover:border-amber-400 hover:bg-amber-50/40 hover:shadow-xs active:scale-[0.99]"
               >
-                <span className="text-xs font-bold text-amber-700">
-                  Group Leader (Rahul Kumar)
-                </span>
-                <span className="text-[11px] font-medium text-slate-600 truncate">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-700">
+                    Rahul Kumar
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800">
+                    ★ Leader
+                  </span>
+                </div>
+                <span className="text-[11px] font-medium text-slate-600 truncate mt-1">
                   rahul@student.com
                 </span>
-                <span className="text-[10px] text-slate-400">Team Phoenix Leader</span>
+                <span className="text-[10px] text-slate-400">Team Phoenix</span>
               </button>
 
               {/* Professor 2 (Dr. Mehta) */}
               <button
                 type="button"
                 onClick={() => fillDemoUser('mehta@professor.com', '123456')}
-                className="flex flex-col text-left rounded-xl border border-slate-200 p-3 transition hover:border-purple-500 hover:bg-purple-50/40"
+                className="group flex flex-col text-left rounded-xl border border-slate-200 p-3 transition hover:border-purple-400 hover:bg-purple-50/40 hover:shadow-xs active:scale-[0.99]"
               >
-                <span className="text-xs font-bold text-purple-700">
-                  Professor (Dr. Mehta)
-                </span>
-                <span className="text-[11px] font-medium text-slate-600 truncate">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-purple-700">
+                    Dr. Mehta
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-800">
+                    Faculty
+                  </span>
+                </div>
+                <span className="text-[11px] font-medium text-slate-600 truncate mt-1">
                   mehta@professor.com
                 </span>
-                <span className="text-[10px] text-slate-400">Software Eng. Dept</span>
+                <span className="text-[10px] text-slate-400">Software Eng.</span>
               </button>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { seedAssignments } from '../data/assignments';
 
 const KEYS = {
   USER: 'assignmenthub_currentUser',
+  TOKEN: 'assignmenthub_auth_token',
   ASSIGNMENTS: 'assignmenthub_assignments',
   USERS: 'assignmenthub_users',
   COURSES: 'assignmenthub_courses',
@@ -25,6 +26,7 @@ export function initializeStorage() {
 
 export function resetDemoData() {
   localStorage.removeItem(KEYS.USER);
+  localStorage.removeItem(KEYS.TOKEN);
   localStorage.setItem(KEYS.USERS, JSON.stringify(seedUsers));
   localStorage.setItem(KEYS.COURSES, JSON.stringify(seedCourses));
   localStorage.setItem(KEYS.GROUPS, JSON.stringify(seedGroups));
@@ -61,6 +63,22 @@ export function setCurrentUser(user) {
 
 export function removeCurrentUser() {
   localStorage.removeItem(KEYS.USER);
+}
+
+export function getAuthToken() {
+  return localStorage.getItem(KEYS.TOKEN) || null;
+}
+
+export function setAuthToken(token) {
+  if (!token) {
+    localStorage.removeItem(KEYS.TOKEN);
+  } else {
+    localStorage.setItem(KEYS.TOKEN, token);
+  }
+}
+
+export function removeAuthToken() {
+  localStorage.removeItem(KEYS.TOKEN);
 }
 
 export function getUsers() {

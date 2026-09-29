@@ -176,44 +176,54 @@ export default function StudentAssignmentDetails() {
         {/* Metadata Details Grid */}
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Deadline */}
-          <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
-              Deadline
-            </span>
-            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
-              <Calendar className="h-4 w-4 text-indigo-600" />
-              <span>{formatDateTime(assignment.deadline)}</span>
+          <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-5 flex flex-col justify-between space-y-3">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                Deadline
+              </span>
+              <div className="flex items-center gap-2 text-slate-900 font-extrabold text-base">
+                <Calendar className="h-4 w-4 text-indigo-600" />
+                <span>{formatDateTime(assignment.deadline)}</span>
+              </div>
             </div>
-            <p
-              className={`text-xs font-semibold ${
-                deadlineInfo.urgency === 'red'
-                  ? 'text-red-600'
-                  : deadlineInfo.urgency === 'orange'
-                  ? 'text-orange-600'
-                  : deadlineInfo.urgency === 'amber'
-                  ? 'text-amber-600'
-                  : deadlineInfo.urgency === 'green'
-                  ? 'text-emerald-600'
-                  : 'text-slate-500'
-              }`}
-            >
-              Status: {deadlineInfo.label}
-            </p>
+            <div className="pt-2 border-t border-slate-200/60">
+              <span
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                  deadlineInfo.urgency === 'red'
+                    ? 'bg-red-50 text-red-700 border border-red-200'
+                    : deadlineInfo.urgency === 'orange'
+                    ? 'bg-orange-50 text-orange-700 border border-orange-200'
+                    : deadlineInfo.urgency === 'amber'
+                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                    : deadlineInfo.urgency === 'green'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-slate-100 text-slate-700 border border-slate-200'
+                }`}
+              >
+                <Clock className="h-3 w-3" />
+                {deadlineInfo.label}
+              </span>
+            </div>
           </div>
 
           {/* Submission Workspace Link */}
-          <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
-              Submission Workspace
-            </span>
+          <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-5 flex flex-col justify-between space-y-3">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                Submission Workspace
+              </span>
+              <p className="text-xs text-slate-500">
+                Upload your files to the official cloud workspace before confirming submission.
+              </p>
+            </div>
             {assignment.driveLink ? (
               <a
                 href={assignment.driveLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-indigo-600 font-bold text-sm hover:underline hover:text-indigo-700 transition"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition active:scale-[0.99]"
               >
-                Open OneDrive Folder
+                <span>Open OneDrive Folder</span>
                 <ExternalLink className="h-4 w-4" />
               </a>
             ) : (
@@ -221,9 +231,6 @@ export default function StudentAssignmentDetails() {
                 No external workspace link provided
               </span>
             )}
-            <p className="text-xs text-slate-500">
-              Upload your files before confirming submission.
-            </p>
           </div>
         </div>
 
@@ -400,8 +407,8 @@ export default function StudentAssignmentDetails() {
       >
         <p className="text-slate-600 leading-relaxed">
           {isGroup
-            ? `Please confirm that your team (${studentGroup?.name}) has uploaded all files to the OneDrive folder. This will acknowledge the submission for all members.`
-            : 'Please confirm that you have submitted this assignment to the designated OneDrive folder. This will mark your assignment as acknowledged.'}
+            ? `Please confirm that your team (${studentGroup?.name}) has submitted the assignment to the designated OneDrive folder.`
+            : 'Please confirm that you have submitted the assignment to the designated OneDrive folder.'}
         </p>
       </ConfirmationModal>
 

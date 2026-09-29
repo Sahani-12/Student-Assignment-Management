@@ -111,39 +111,47 @@ export default function CourseAssignments() {
       />
 
       {/* Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200/80 pb-6">
-        <div>
-          <Link
-            to="/professor/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 mb-2 transition"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Courses
-          </Link>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+      <header className="rounded-2.5xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-card space-y-4">
+        <Link
+          to="/professor/dashboard"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Courses
+        </Link>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                {course.code}
+              </span>
+              <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-lg">
+                {course.credits} Credits
+              </span>
+              <span className="text-xs font-semibold text-slate-500">
+                {course.semester}
+              </span>
+            </div>
+            <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
               {course.name}
             </h1>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-              {course.code}
-            </span>
+            <p className="mt-1 text-sm text-slate-500">
+              {course.studentIds?.length || 0} enrolled students · {courseAssignments.length} total assignments
+            </p>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
-            {course.semester} · {course.studentIds?.length || 0} enrolled students · {courseAssignments.length} total assignments
-          </p>
-        </div>
 
-        <Link
-          to={`/professor/assignments/create?courseId=${course.id}`}
-          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 active:scale-[0.99]"
-        >
-          <PlusCircle className="h-4 w-4" />
-          + Create Assignment
-        </Link>
+          <Link
+            to={`/professor/assignments/create?courseId=${course.id}`}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 active:scale-[0.99] self-start md:self-auto"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Create Assignment
+          </Link>
+        </div>
       </header>
 
       {/* Filters and Search Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs">
         {/* Search Input */}
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -182,6 +190,20 @@ export default function CourseAssignments() {
             <option value="group">Group</option>
           </select>
 
+          {(search || statusFilter !== 'all' || typeFilter !== 'all') && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch('');
+                setStatusFilter('all');
+                setTypeFilter('all');
+              }}
+              className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+            >
+              Reset
+            </button>
+          )}
+
           {/* Grid / Table View Mode Toggle */}
           <div className="hidden sm:flex items-center gap-1 border border-slate-200 rounded-xl p-1 bg-slate-50">
             <button
@@ -215,17 +237,24 @@ export default function CourseAssignments() {
       {/* Content: Cards or Table */}
       {filtered.length === 0 ? (
         <EmptyState
-          title="No assignments found"
+          title={search.trim() || statusFilter !== 'all' || typeFilter !== 'all' ? 'No assignments match your filter' : 'No assignments found'}
           description={
             search || statusFilter !== 'all' || typeFilter !== 'all'
-              ? 'Try adjusting your search query or filter selections.'
+              ? 'Try adjusting your search query or resetting active filters.'
               : 'Create your first assignment for this course to begin.'
           }
-          actionLabel="+ Create Assignment"
-          onAction={() =>
-            navigate(`/professor/assignments/create?courseId=${course.id}`)
+          actionLabel={search || statusFilter !== 'all' || typeFilter !== 'all' ? 'Reset Filters' : '+ Create Assignment'}
+          onAction={
+            search || statusFilter !== 'all' || typeFilter !== 'all'
+              ? () => {
+                  setSearch('');
+                  setStatusFilter('all');
+                  setTypeFilter('all');
+                }
+              : () => navigate(`/professor/assignments/create?courseId=${course.id}`)
           }
         />
+
       ) : viewMode === 'grid' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((assignment) => (

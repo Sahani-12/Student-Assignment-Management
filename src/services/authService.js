@@ -4,6 +4,9 @@ import {
   removeCurrentUser,
   saveUsers,
   setCurrentUser,
+  getAuthToken,
+  setAuthToken,
+  removeAuthToken,
 } from '../utils/storage';
 
 export const authService = {
@@ -37,8 +40,12 @@ export const authService = {
       title: match.title,
     };
 
+    // Simulated session token abstraction for future JWT compatibility
+    const simulatedToken = `demo_token_${match.id}_${Date.now()}`;
     setCurrentUser(sessionUser);
-    return { ok: true, user: sessionUser };
+    setAuthToken(simulatedToken);
+
+    return { ok: true, user: sessionUser, token: simulatedToken };
   },
 
   register: async ({ name, email, password, role = 'student' }) => {
@@ -84,15 +91,27 @@ export const authService = {
       department: newUser.department,
     };
 
+    const simulatedToken = `demo_token_${newUser.id}_${Date.now()}`;
     setCurrentUser(sessionUser);
-    return { ok: true, user: sessionUser };
+    setAuthToken(simulatedToken);
+
+    return { ok: true, user: sessionUser, token: simulatedToken };
   },
 
   logout: () => {
     removeCurrentUser();
+    removeAuthToken();
   },
 
   getCurrentUser: () => {
     return getCurrentUser();
+  },
+
+  getToken: () => {
+    return getAuthToken();
+  },
+
+  isAuthenticated: () => {
+    return Boolean(getCurrentUser());
   },
 };
